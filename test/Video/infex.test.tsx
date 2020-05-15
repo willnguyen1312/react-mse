@@ -7,23 +7,15 @@ import { getElement } from '../utils';
 describe('video', () => {
   it('should work', async () => {
     const mocknVolumeChange = jest.fn();
-    const { getByText, container, debug } = render(
-      <MediaProvider mediaSource={''}>
-        <MediaConsumer
-          render={({ getMediaStat }) => (
-            <Video onVolumeChange={mocknVolumeChange} />
-          )}
-        />
+    const { getByText, container } = render(
+      <MediaProvider>
+        <Video onVolumeChange={mocknVolumeChange} />
       </MediaProvider>
     );
 
     const videoElement = getElement(container, 'video');
 
-    const muteButton = getByText(/Toggle muted/i);
-
-    fireEvent.click(muteButton);
-
-    getByText(/Muted: true/i);
+    videoElement.muted = true;
     expect(mocknVolumeChange).toHaveBeenCalledTimes(1);
   });
 });
