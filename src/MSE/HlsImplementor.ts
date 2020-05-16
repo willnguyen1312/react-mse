@@ -25,12 +25,7 @@ export class HlsImplementor implements MSEImplementor {
   };
 
   init = (mediaSource: string) => {
-    const {
-      media,
-      setFps,
-      updateBitrates,
-      updateCurrentBirateIndex,
-    } = this.config;
+    const { media, updateBitrates, updateCurrentBirateIndex } = this.config;
 
     if (media && media.canPlayType('application/vnd.apple.mpegurl')) {
       // For native support like Apple's safari
@@ -53,13 +48,6 @@ export class HlsImplementor implements MSEImplementor {
         );
 
         updateBitrates(bitrates);
-      });
-
-      this._hls.on(Hls.Events.FRAG_PARSING_DATA, (_, data) => {
-        if (data.type === 'video') {
-          const fps = data.nb / (data.endPTS - data.startPTS);
-          setFps(Math.round(fps));
-        }
       });
 
       this._hls.on(Hls.Events.LEVEL_SWITCHED, (_, { level }) => {

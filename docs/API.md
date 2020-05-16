@@ -4,7 +4,6 @@
   - [Thid step: customization](#thid-step-customization)
 - [MediaContext](#mediacontext)
     - [mediaElement](#mediaelement)
-    - [fps](#fps)
     - [autoBitrateEnabled](#autobitrateenabled)
     - [bitrates](#bitrates)
     - [currentBirateIndex](#currentbirateindex)
@@ -112,11 +111,6 @@ const CustomAudioPlayer = (
 (HTMLAudioElement or HTMLVideoElement)
 
 reference to actual media element rendered under MediaProvder
-
-#### fps
-(number)
-
-Frame per second of the rendered video. This value fluctuates across video's segments and resolutions
 
 #### autoBitrateEnabled
 (boolean)
@@ -245,7 +239,7 @@ Set rotation of the video
 ```
 import { MediaConsumer } from '@axon/next-media'
 
-<MediaConsumer render={({ fps }) => <p>FPS: ${fps} </p>} />
+<MediaConsumer render={({ currentTime }) => <p>Current time: ${currentTime} </p>} />
 ```
 #### HOC
 ```

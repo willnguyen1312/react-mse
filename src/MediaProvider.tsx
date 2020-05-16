@@ -33,7 +33,6 @@ export const MediaProvider: FC<MediaProviderProps> = ({
   const [muted, updateMuted] = useState(false);
   const [rotate, updateRotate] = useState<Rotate>(0);
   const [isLoading, updateIsLoading] = useState(true);
-  const [fps, setFps] = useState(0);
 
   const getMedia = () => {
     const media = _mediaElementRef.current;
@@ -72,7 +71,6 @@ export const MediaProvider: FC<MediaProviderProps> = ({
       _mseRef.current ||
       createMseInstance({
         media,
-        setFps,
         updateBitrates,
         updateCurrentBirateIndex,
       });
@@ -184,7 +182,6 @@ export const MediaProvider: FC<MediaProviderProps> = ({
         mediaElement: media,
 
         // Streaming properties
-        fps,
         autoBitrateEnabled,
         bitrates,
         currentBirateIndex,

@@ -17,7 +17,6 @@ export const VideoPlayer = ({}) => {
     setPaused,
     setMuted,
     buffered,
-    fps,
   } = useMediaContext();
 
   const togglePlay = () => setPaused(!paused);
@@ -76,7 +75,6 @@ export const VideoPlayer = ({}) => {
 
           return timeRanges.map(timeRange => JSON.stringify(timeRange));
         })()}
-      {fps !== 0 && <p>{`Fps: ${fps}`}</p>}
     </>
   );
 };

@@ -40,7 +40,6 @@ export interface MediaContextProps {
   mediaElement: HTMLVideoElement | HTMLAudioElement | null;
 
   // Streaming properties
-  fps: number;
   autoBitrateEnabled: boolean;
   bitrates: BitrateInfo[];
   currentBirateIndex: number;
@@ -93,7 +92,6 @@ export interface MediaContextConsumerProps {
 export interface MSEImplementorConfig {
   media: HTMLMediaElement;
   updateBitrates: (bitrates: BitrateInfo[]) => void;
-  setFps: (value: number) => void;
   updateCurrentBirateIndex: (value: number) => void;
 }
 

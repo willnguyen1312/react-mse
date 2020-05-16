@@ -1,20 +1,24 @@
-import React, { useContext } from 'react'
-import { MediaContextType, MediaContextProps, MediaContextConsumerProps } from './types'
+import React, { useContext } from 'react';
+import {
+  MediaContextType,
+  MediaContextProps,
+  MediaContextConsumerProps,
+} from './types';
 
-export const MediaContext = React.createContext<MediaContextType | null>(null)
+export const MediaContext = React.createContext<MediaContextType | null>(null);
 
 export const _useMediaContext = () => {
-  const mediaContext = useContext(MediaContext)
+  const mediaContext = useContext(MediaContext);
 
   if (!mediaContext) {
-    throw new Error('Please place the component inside MediaContext')
+    throw new Error('Please place the component inside MediaContext');
   }
 
-  return mediaContext
-}
+  return mediaContext;
+};
 
 export const useMediaContext = (): MediaContextProps => {
-  const mediaContext = _useMediaContext()
+  const mediaContext = _useMediaContext();
 
   return {
     // Media properties
@@ -30,7 +34,6 @@ export const useMediaContext = (): MediaContextProps => {
     rotate: mediaContext.rotate,
 
     // Streaming properties
-    fps: mediaContext.fps,
     autoBitrateEnabled: mediaContext.autoBitrateEnabled,
     bitrates: mediaContext.bitrates,
     currentBirateIndex: mediaContext.currentBirateIndex,
@@ -44,18 +47,20 @@ export const useMediaContext = (): MediaContextProps => {
     setPlaybackRate: mediaContext.setPlaybackRate,
     setVolume: mediaContext.setVolume,
     setRotate: mediaContext.setRotate,
-  }
-}
+  };
+};
 
-export const withMediaContext = <P extends { mediaContext: MediaContextProps }>(Component: React.ComponentType<P>) => (
-  props: Omit<P, 'mediaContext'>
-) => {
-  const mediaContext = useMediaContext()
-  return <Component {...(props as P)} mediaContext={mediaContext} />
-}
+export const withMediaContext = <P extends { mediaContext: MediaContextProps }>(
+  Component: React.ComponentType<P>
+) => (props: Omit<P, 'mediaContext'>) => {
+  const mediaContext = useMediaContext();
+  return <Component {...(props as P)} mediaContext={mediaContext} />;
+};
 
-export const MediaConsumer: React.FC<MediaContextConsumerProps> = ({ render }) => {
-  const mediaContext = useMediaContext()
+export const MediaConsumer: React.FC<MediaContextConsumerProps> = ({
+  render,
+}) => {
+  const mediaContext = useMediaContext();
 
-  return <>{render(mediaContext)}</>
-}
+  return <>{render(mediaContext)}</>;
+};
