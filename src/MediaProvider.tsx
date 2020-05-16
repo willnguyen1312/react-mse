@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState, FC } from 'react';
-import Hls from 'hls.js';
 import { MediaContext } from './MediaContext';
 import { convertTimeRangesToSeconds } from './utils';
 import { DEFAULT_AUTO_BITRATE } from './constants';
-import { Rotate, BitrateInfo } from './types';
+import { Rotate, BitrateInfo, MSEImplementor } from './types';
+import { createMseInstance } from './MSE';
 
 interface MediaProviderProps {
   mediaSource?: string;
@@ -15,7 +15,9 @@ export const MediaProvider: FC<MediaProviderProps> = ({
 }) => {
   const _isPlayingRef = useRef<boolean>(false);
   const _mediaElementRef = useRef<HTMLVideoElement | HTMLAudioElement>(null);
-  const _hlsRef = useRef<Hls>(null) as React.MutableRefObject<Hls>;
+  const _mseRef = useRef<MSEImplementor>(null) as React.MutableRefObject<
+    MSEImplementor
+  >;
   const [bitrates, updateBitrates] = useState<BitrateInfo[]>([]);
   const [currentBirateIndex, updateCurrentBirateIndex] = useState(
     DEFAULT_AUTO_BITRATE
@@ -41,19 +43,12 @@ export const MediaProvider: FC<MediaProviderProps> = ({
     return media;
   };
 
-  const _getHls = () => {
-    const hls = _hlsRef.current;
-    if (!hls) {
-      throw new Error('HLS instance is not available');
+  const _getMse = () => {
+    const mse = _mseRef.current;
+    if (!mse) {
+      throw new Error('mse instance is not available');
     }
-    return hls;
-  };
-
-  const releaseHlsResource = () => {
-    const hls = _hlsRef.current;
-    if (hls) {
-      hls.destroy();
-    }
+    return mse;
   };
 
   const checkMediaHasDataToPlay = () => {
@@ -73,45 +68,20 @@ export const MediaProvider: FC<MediaProviderProps> = ({
     }
 
     const media = getMedia();
-    releaseHlsResource();
-
-    if (Hls.isSupported()) {
-      const newHls = new Hls();
-      newHls.attachMedia(media as HTMLVideoElement);
-      newHls.on(Hls.Events.MEDIA_ATTACHED, () => {
-        newHls.loadSource(mediaSource);
+    const mseInstance =
+      _mseRef.current ||
+      createMseInstance({
+        media,
+        setFps,
+        updateBitrates,
+        updateCurrentBirateIndex,
       });
 
-      newHls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
-        const bitrates: BitrateInfo[] = ((data.levels as unknown) as Hls.Level[]).map(
-          level => ({
-            bitrate: level.bitrate,
-            height: level.height,
-            width: level.width,
-          })
-        );
+    if (!_mseRef.current) _mseRef.current = mseInstance;
 
-        updateBitrates(bitrates);
-      });
+    mseInstance.init(mediaSource);
 
-      newHls.on(Hls.Events.FRAG_PARSING_DATA, (_, data) => {
-        if (data.type === 'video') {
-          const fps = data.nb / (data.endPTS - data.startPTS);
-          setFps(Math.round(fps));
-        }
-      });
-
-      newHls.on(Hls.Events.LEVEL_SWITCHED, (_, { level }) => {
-        updateCurrentBirateIndex(level);
-      });
-
-      _hlsRef.current = newHls;
-    } else if (media && media.canPlayType('application/vnd.apple.mpegurl')) {
-      // For native support like Apple's safari
-      media.src = mediaSource;
-    }
-
-    return releaseHlsResource;
+    return () => mseInstance.release();
   }, [mediaSource]);
 
   const _onSeeking = () => {
@@ -201,10 +171,7 @@ export const MediaProvider: FC<MediaProviderProps> = ({
   ) => {
     setautoBitrateEnabled(bitrateIndex === DEFAULT_AUTO_BITRATE);
     updateCurrentBirateIndex(bitrateIndex);
-    const hlsInstance = _getHls();
-    if (hlsInstance.currentLevel !== bitrateIndex) {
-      hlsInstance.currentLevel = bitrateIndex;
-    }
+    _getMse().setCurrentBitrateIndex(bitrateIndex);
   };
 
   const setRotate = (rotate: number) => updateRotate((rotate % 4) as Rotate);

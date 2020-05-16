@@ -89,3 +89,20 @@ export interface MediaContextType extends MediaContextProps {
 export interface MediaContextConsumerProps {
   render: (mediaContext: MediaContextProps) => React.ReactNode;
 }
+
+export interface MSEImplementorConfig {
+  media: HTMLMediaElement;
+  updateBitrates: (bitrates: BitrateInfo[]) => void;
+  setFps: (value: number) => void;
+  updateCurrentBirateIndex: (value: number) => void;
+}
+
+export interface MSEImplementor {
+  setCurrentBitrateIndex: (value: number) => void;
+
+  config: MSEImplementorConfig;
+
+  init: (mediaSource: string) => void;
+
+  release: () => void;
+}
